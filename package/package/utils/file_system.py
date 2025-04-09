@@ -1,6 +1,7 @@
 from pathlib import Path
 import pkgutil
 
+
 def get_root_project_path() -> Path:
     """
     Get the root path of the project.
@@ -8,6 +9,7 @@ def get_root_project_path() -> Path:
     :return: Path object representing the root path of the project.
     """
     return Path(__file__).parent.parent.parent
+
 
 def read_file(file_path: str) -> str:
     """
