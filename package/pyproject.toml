@@ -1,0 +1,17 @@
+[tool.poetry]
+name = "package"
+version = "0.1.0"
+description = ""
+authors = ["Manuel Gil <manuelgilsitio@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+mlflow = "^2.21.3"
+
+[tool.poetry.scripts]
+test = "package.entrypoints:test"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
