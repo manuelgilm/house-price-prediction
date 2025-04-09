@@ -7,7 +7,10 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.11"
+mlflow = "^2.21.3"
 
+[tool.poetry.scripts]
+test = "package.entrypoints:test"
 
 [build-system]
 requires = ["poetry-core"]
