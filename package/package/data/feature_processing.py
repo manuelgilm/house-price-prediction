@@ -4,7 +4,7 @@ import pandas as pd
 import os
 
 
-def create_feature_metadata_table():
+def create_feature_metadata_table() -> None:
     """
     Process the dataset to create a feature metadata table.
     This table contains the textual features and their corresponding images.
@@ -16,7 +16,6 @@ def create_feature_metadata_table():
     # Save the merged DataFrame to a CSV file
     root = get_root_project_path()
     df.to_csv(root / "package" / "data" / "feature_metadata.csv", index=False)
-    print(df.head())
 
 
 def process_textual_data() -> pd.DataFrame:
