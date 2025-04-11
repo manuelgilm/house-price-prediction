@@ -21,5 +21,3 @@ def read_file(file_path: str) -> str:
     data = pkgutil.get_data("package", file_path)
     if data is not None:
         return data.decode("utf-8")
-    # with open(file_path, 'r') as file:
-    #     return file.read()
