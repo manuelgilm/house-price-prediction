@@ -20,6 +20,7 @@ visualkeras = "^0.1.4"
 
 [tool.poetry.scripts]
 test = "package.entrypoints:test"
+train = "package.entrypoints:train"
 
 [build-system]
 requires = ["poetry-core"]

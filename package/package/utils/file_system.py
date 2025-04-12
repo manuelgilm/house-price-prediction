@@ -1,5 +1,7 @@
 from pathlib import Path
 import pkgutil
+import pandas as pd
+from io import StringIO
 
 
 def get_root_project_path() -> Path:
@@ -21,3 +23,14 @@ def read_file(file_path: str) -> str:
     data = pkgutil.get_data("package", file_path)
     if data is not None:
         return data.decode("utf-8")
+
+
+def read_csv_as_dataframe(file_path: str) -> pd.DataFrame:
+    """
+    Read a CSV file and return it as a pandas DataFrame.
+
+    :param file_path: Path to the CSV file to be read.
+    :return: pandas DataFrame containing the CSV data.
+    """
+    csv_content = read_file(file_path)
+    return pd.read_csv(StringIO(csv_content))
