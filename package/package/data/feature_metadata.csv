@@ -1,4 +1,4 @@
-id_,n_bedroons,n_bathrooms,area,zipcode,price,bedroom,bathroom,kitchen,frontal
+id_,n_bedrooms,n_bathrooms,area,zipcode,price,bedroom,bathroom,kitchen,frontal
 1,4.0,4.0,4053.0,85255.0,869500.0,C:/Users/manue/projects/HOUSES-DATASET/Houses Dataset/1_bedroom.jpg,C:/Users/manue/projects/HOUSES-DATASET/Houses Dataset/1_bathroom.jpg,C:/Users/manue/projects/HOUSES-DATASET/Houses Dataset/1_kitchen.jpg,C:/Users/manue/projects/HOUSES-DATASET/Houses Dataset/1_frontal.jpg
 2,4.0,3.0,3343.0,36372.0,865200.0,C:/Users/manue/projects/HOUSES-DATASET/Houses Dataset/2_bedroom.jpg,C:/Users/manue/projects/HOUSES-DATASET/Houses Dataset/2_bathroom.jpg,C:/Users/manue/projects/HOUSES-DATASET/Houses Dataset/2_kitchen.jpg,C:/Users/manue/projects/HOUSES-DATASET/Houses Dataset/2_frontal.jpg
 3,3.0,4.0,3923.0,85266.0,889000.0,C:/Users/manue/projects/HOUSES-DATASET/Houses Dataset/3_bedroom.jpg,C:/Users/manue/projects/HOUSES-DATASET/Houses Dataset/3_bathroom.jpg,C:/Users/manue/projects/HOUSES-DATASET/Houses Dataset/3_kitchen.jpg,C:/Users/manue/projects/HOUSES-DATASET/Houses Dataset/3_frontal.jpg

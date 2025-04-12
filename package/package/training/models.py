@@ -34,20 +34,18 @@ class CNNPriceRegressor(CustomModel):
 
         model.compile(optimizer="adam", loss="mse")
         callbacks = [mlflow.keras.MlflowCallback()] if log_history else None
-        
+
         with mlflow.start_run() as run:
             model.fit(
-                x = x_train,
-                y = y_train,
+                x=x_train,
+                y=y_train,
                 epochs=epochs,
                 batch_size=batch_size,
                 validation_data=(x_val, y_val),
                 callbacks=callbacks,
             )
 
-            mlflow.keras.log_model(
-                model, artifact_path=self.__class__.__name__
-            )
+            mlflow.keras.log_model(model, artifact_path=self.__class__.__name__)
 
     def log_keras_model(self, model, artifact_path: str, run_id: str):
         """
@@ -58,11 +56,7 @@ class CNNPriceRegressor(CustomModel):
         :param run_id: The run ID of the MLflow run.
         """
         with mlflow.start_run(run_id=run_id):
-            mlflow.keras.log_model(
-                model, 
-                artifact_path=artifact_path,
-                signature=
-            )
+            mlflow.keras.log_model(model, artifact_path=artifact_path, signature=None)
 
     def get_image_processor(self, output_dim: int, prefix: Optional[str]):
         """

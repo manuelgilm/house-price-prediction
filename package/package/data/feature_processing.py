@@ -2,6 +2,11 @@ from package.utils.file_system import get_root_project_path
 from package.utils.file_system import read_file
 import pandas as pd
 import os
+import numpy as np
+import matplotlib.image as mpimg
+from typing import Dict
+from typing import Optional
+from typing import Tuple
 
 
 def create_feature_metadata_table() -> None:
@@ -77,3 +82,69 @@ def process_images() -> pd.DataFrame:
     df.drop_duplicates(subset=["id_"], inplace=True)
 
     return df
+
+
+def get_train_test_val_indexes(indexes, test_size: float = 0.2, val_size: float = 0.1):
+    """
+    Get the train, validation, and test indexes from the given indexes.
+    This function shuffles the indexes and splits them into train, validation, and test sets.
+
+    :param indexes: List of indexes to be split.
+    :param test_size: Proportion of the dataset to include in the test split.
+    :param val_size: Proportion of the dataset to include in the validation split.
+    :return: Tuple containing the train, validation, and test indexes.
+    """
+    np.random.shuffle(indexes)
+    test_size = int(len(indexes) * test_size)
+    val_size = int(len(indexes) * val_size)
+    train_size = len(indexes) - test_size - val_size
+    train_indexes = indexes[:train_size]
+    val_indexes = indexes[train_size : train_size + val_size]
+    test_indexes = indexes[train_size + val_size :]
+    return train_indexes, val_indexes, test_indexes
+
+
+def get_dataset(indexes: np.array, df: pd.DataFrame):
+    """
+    Get the dataset from the given indexes and DataFrame.
+    This function processes the images and textual data, and returns them as numpy arrays.
+
+    :param indexes: List of indexes to be used for splitting the dataset.
+    :param df: DataFrame containing the feature metadata.
+    :return: Tuple containing the image data, textual data, and target values.
+    """
+
+    df_index = pd.DataFrame(indexes, columns=["id_"])
+    df = pd.merge(df, df_index, on="id_")
+    return df
+
+
+def get_model_data(df: pd.DataFrame) -> tuple:
+    """
+    Get the model data from the given DataFrame.
+    This function processes the images and textual data, and returns them as numpy arrays.
+
+    :param df: DataFrame containing the feature metadata.
+    :return: Tuple containing the image data, textual data, and target values.
+    """
+    textual_data = df.get(["n_bedrooms", "n_bathrooms", "area"])
+    target = df.get(["price"])
+    input_names_map = {
+        "bedroom_image_input": "bedroom",
+        "bathroom_image_input": "bathroom",
+        "kitchen_image_input": "kitchen",
+        "frontal_image_input": "frontal",
+    }
+
+    batch_size = len(df)
+    x = {
+        feature_label: np.resize(
+            df.get(input_key).to_numpy(), (batch_size, 128, 128, 3)
+        )
+        for feature_label, input_key in input_names_map.items()
+    }
+
+    x.update({"textual_data": textual_data.to_numpy()})
+    y = target.to_numpy()
+
+    return x, y
