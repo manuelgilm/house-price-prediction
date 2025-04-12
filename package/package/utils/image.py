@@ -18,5 +18,5 @@ def read_image(
     image = mpimg.imread(image_path)
     # Resize the image to (128, 128, 3)
     image = np.resize(image, image_size).astype(np.float32)
-    
+
     return image
