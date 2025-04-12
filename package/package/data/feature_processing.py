@@ -128,7 +128,7 @@ def get_model_data(df: pd.DataFrame) -> tuple:
     :return: Tuple containing the image data, textual data, and target values.
     """
     textual_data = df.get(["n_bedrooms", "n_bathrooms", "area"])
-    target = df.get(["price"])
+    target = df.get(["price"]) / max(df["price"])
     input_names_map = {
         "bedroom_image_input": "bedroom",
         "bathroom_image_input": "bathroom",
@@ -138,13 +138,13 @@ def get_model_data(df: pd.DataFrame) -> tuple:
 
     batch_size = len(df)
     x = {
-        feature_label: np.resize(
-            df.get(input_key).to_numpy(), (batch_size, 128, 128, 3)
-        )
-        for feature_label, input_key in input_names_map.items()
+        feature_label: np.array(
+            [image for image in df.get(input_key)]
+        ) for feature_label, input_key in input_names_map.items()
     }
 
+
     x.update({"textual_data": textual_data.to_numpy().astype(np.float32)})
-    y = target.to_numpy().astype(np.float32)
+    y = np.resize(target.to_numpy().astype(np.float32), (batch_size,)) 
 
     return x, y

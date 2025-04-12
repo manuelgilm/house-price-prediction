@@ -7,6 +7,7 @@ from package.utils.file_system import read_csv_as_dataframe
 
 from package.training.models import CNNPriceRegressor
 import pandas as pd
+import numpy as np
 
 
 def test():
@@ -36,11 +37,12 @@ def train():
 
     x_val_ = {}
     x_val_["image_input"] = x_val["bedroom_image_input"]
-    # print(x_val_.keys())
-    # print(x_train_.keys())
-    # print(x_train_["bedroom_image_input"].shape)
-    # print(x_val_["bedroom_image_input"].shape)
+    
+    print(x_val_.keys())
+    print(x_train_.keys())
+    print(x_train_["image_input"].shape)
+    print(x_val_["image_input"].shape)
+    print(y_train.shape)
+    print(y_val.shape)
     cvnn_regressor = CNNPriceRegressor(image_input_shape=(128, 128, 3))
-    # model = cvnn_regressor.build_model()
-    # print(model.summary())
-    cvnn_regressor.train(x_train_, y_train, x_val_, y_val, epochs=10, batch_size=32)
+    cvnn_regressor.train(x_train_, y_train, x_val_, y_val, epochs=200, batch_size=32)
