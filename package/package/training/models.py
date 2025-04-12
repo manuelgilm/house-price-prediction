@@ -31,8 +31,9 @@ class CNNPriceRegressor(CustomModel):
         """
 
         model = self.build_model()
+        optimizer = keras.optimizers.Adamax(learning_rate=0.001, decay=1e-3 / 200)
 
-        model.compile(optimizer="adam", loss="mse")
+        model.compile(optimizer=optimizer, loss="mse")
         callbacks = [mlflow.keras.MlflowCallback()] if log_history else None
 
         with mlflow.start_run() as run:

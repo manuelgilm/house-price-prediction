@@ -144,7 +144,7 @@ def get_model_data(df: pd.DataFrame) -> tuple:
         for feature_label, input_key in input_names_map.items()
     }
 
-    x.update({"textual_data": textual_data.to_numpy()})
-    y = target.to_numpy()
+    x.update({"textual_data": textual_data.to_numpy().astype(np.float32)})
+    y = target.to_numpy().astype(np.float32)
 
     return x, y
