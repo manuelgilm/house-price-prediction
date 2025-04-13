@@ -19,6 +19,7 @@ class CNNPriceRegressor(CustomModel):
         epochs: int = 10,
         batch_size: int = 8,
         log_history: bool = True,
+        registered_model_name: Optional[str] = None,
     ):
         """
         Train the model using the provided training and validation data.
@@ -52,22 +53,40 @@ class CNNPriceRegressor(CustomModel):
                 callbacks=callbacks,
             )
 
-            mlflow.keras.log_model(
-                model, artifact_path="model", signature=model_signature
-            )
+        self.log_keras_model(
+            model=model,
+            artifact_path="model",
+            run_id=run.info.run_id,
+            signature=model_signature,
+            registered_model_name=registered_model_name,
+        )
 
         return run.info.run_id
 
-    def log_keras_model(self, model, artifact_path: str, run_id: str):
+    def log_keras_model(
+        self,
+        model,
+        artifact_path: str,
+        run_id: str,
+        signature,
+        registered_model_name: Optional[str] = None,
+    ):
         """
         Logs the Keras model to MLflow.
 
         :param model: The Keras model to log.
         :param artifact_path: The path in the MLflow artifact store where the model will be saved.
         :param run_id: The run ID of the MLflow run.
+        :param registered_model_name: Optional name for the registered model.
+
         """
         with mlflow.start_run(run_id=run_id):
-            mlflow.keras.log_model(model, artifact_path=artifact_path, signature=None)
+            mlflow.keras.log_model(
+                model,
+                artifact_path=artifact_path,
+                signature=signature,
+                registered_model_name=registered_model_name,
+            )
 
     def get_image_processor(self, output_dim: int, prefix: Optional[str]):
         """

@@ -22,11 +22,6 @@ def get_model_signature(
     :param numerical_input_shape: Shape of the numerical input.
     :return: A ModelSignature object representing the model signature.
     """
-
-    # if not all([image_input_names, image_input_shape, numerical_input_shape]):
-    #     print("Parameters are not set.")
-    #     return
-
     image_input_spec = [
         get_image_signature(
             image_shape=image_input_shape, image_input_name=image_input_name
@@ -65,5 +60,5 @@ def get_image_signature(
     if image_input_name is None:
         image_input_name = "image_input"
     return TensorSpec(
-        shape=(-1, *image_shape), type=np.dtype(np.float32), name=image_input_name
+        shape=(-1, *image_shape), type=np.dtype(np.uint8), name=image_input_name
     )

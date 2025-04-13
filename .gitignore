@@ -3,6 +3,12 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# csv and pkl files
+*.csv
+*.pkl
+
+# mlruns folder
+mlruns/
 # C extensions
 *.so
 

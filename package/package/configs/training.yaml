@@ -1,0 +1,68 @@
+models:
+  - name: "hpr_bedroom"
+    registered_model_name: "hpr_bedroom"
+    model_path: "model"
+    input_image_label: bedroom
+    include_textual_data: false
+    tags:
+      model_type: "single_image_model"
+      image_label: "bedroom"
+      model_name: "hpr_bedroom"
+
+  - name: "hpr_kitchen"
+    registered_model_name: "hpr_kitchen"
+    model_path: "model"
+    input_image_label: kitchen
+    include_textual_data: false
+    tags:
+      model_type: "single_image_model"
+      image_label: "kitchen"
+      model_name: "hpr_kitchen"
+
+  - name: "hpr_bathroom"
+    registered_model_name: "hpr_bathroom"
+    model_path: "model"
+    input_image_label: bathroom
+    include_textual_data: false
+    tags:
+      model_type: "single_image_model"
+      image_label: "bathroom"
+      model_name: "hpr_bathroom"
+
+  - name: "hpr_frontal"
+    registered_model_name: "hpr_frontal"
+    model_path: "model"
+    input_image_label: frontal
+    include_textual_data: false
+    tags:
+      model_type: "single_image_model"
+      image_label: "frontal"
+      model_name: "hpr_frontal"
+
+  - name: "hpr_multi_image"
+    registered_model_name: "hpr_multi_image"
+    model_path: "model"
+    input_image_label: all
+    include_textual_data: false
+    tags:
+      model_type: "multi_image_model"
+      image_label: "all"
+      model_name: "hpr_multi_image"
+
+  - name: "hpr_combined_features"
+    registered_model_name: "hpr_combined_features"
+    model_path: "model"
+    input_image_label: all
+    include_textual_data: true
+    tags:
+      model_type: "combined_features_model"
+      image_label: "all"
+      model_name: "hpr_combined_features"
+
+training:
+  epochs: 10
+  batch_size: 32
+  learning_rate: 0.001
+  optimizer: "adam"
+  loss_function: ""
+  validation_split: 0.2
