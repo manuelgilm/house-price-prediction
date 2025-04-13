@@ -45,8 +45,6 @@ def process_textual_data() -> pd.DataFrame:
                 }
             )
 
-    # Convert the dictionary to a DataFrame or any other structure you prefer
-    # For example, using pandas:
     df = pd.DataFrame(feature_metadata)
 
     return df
@@ -138,13 +136,11 @@ def get_model_data(df: pd.DataFrame) -> tuple:
 
     batch_size = len(df)
     x = {
-        feature_label: np.resize(
-            df.get(input_key).to_numpy(), (batch_size, 128, 128, 3)
-        )
+        feature_label: np.array([image for image in df.get(input_key)])
         for feature_label, input_key in input_names_map.items()
     }
 
     x.update({"textual_data": textual_data.to_numpy().astype(np.float32)})
-    y = target.to_numpy().astype(np.float32)
+    y = np.resize(target.to_numpy().astype(np.float32), (batch_size,))
 
     return x, y

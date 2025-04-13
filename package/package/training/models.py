@@ -1,5 +1,6 @@
 import keras
 from package.training.base import CustomModel
+from package.training.utils import get_model_signature
 from typing import Optional
 import mlflow
 
@@ -16,7 +17,7 @@ class CNNPriceRegressor(CustomModel):
         x_val,
         y_val,
         epochs: int = 10,
-        batch_size: int = 32,
+        batch_size: int = 8,
         log_history: bool = True,
     ):
         """
@@ -33,9 +34,14 @@ class CNNPriceRegressor(CustomModel):
         model = self.build_model()
         optimizer = keras.optimizers.Adamax(learning_rate=0.001, decay=1e-3 / 200)
 
-        model.compile(optimizer=optimizer, loss="mse")
+        model.compile(optimizer=optimizer, loss="mean_absolute_percentage_error")
         callbacks = [mlflow.keras.MlflowCallback()] if log_history else None
 
+        model_signature = get_model_signature(
+            image_input_names=["image_input"], image_input_shape=self.image_input_shape
+        )
+        print("model signature")
+        print(model_signature)
         with mlflow.start_run() as run:
             model.fit(
                 x=x_train,
@@ -46,7 +52,11 @@ class CNNPriceRegressor(CustomModel):
                 callbacks=callbacks,
             )
 
-            mlflow.keras.log_model(model, artifact_path=self.__class__.__name__)
+            mlflow.keras.log_model(
+                model, artifact_path="model", signature=model_signature
+            )
+
+        return run.info.run_id
 
     def log_keras_model(self, model, artifact_path: str, run_id: str):
         """
