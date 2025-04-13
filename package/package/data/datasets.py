@@ -1,6 +1,25 @@
 from package.data.base import CustomDataset
 from typing import Dict
 from typing import Any
+from typing import Tuple
+
+class HousePriceDataset(CustomDataset):
+
+    def __init__(self):
+        pass 
+
+    def get_image_dataset(self)->Tuple[Dict[str, Any], Dict[str, Any]]:
+        pass 
+
+    def get_multi_image_dataset(self)->Tuple[Dict[str, Any], Dict[str, Any]]:
+        pass 
+
+    def get_combined_dataset(self)->Tuple[Dict[str, Any], Dict[str, Any]]:
+        pass 
+
+    
+
+
 
 
 class HouseImageDataset(CustomDataset):
