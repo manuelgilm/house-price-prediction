@@ -21,37 +21,49 @@ import pandas as pd
 
 def test():
     dataset = HousePriceDataset()
-    image_label = "kitchen"
+    image_labels = ["kitchen", "bathroom", "frontal", "bedroom"]
 
-    x_train, y_train, x_val, y_val, x_test, y_test = dataset.get_train_test_val_data(
-        dataset_type="single_image", image_label=image_label
-    )
-    max_price = y_train["price"].max()
-    y_train["price"] = y_train["price"] / max_price
-    y_val["price"] = y_val["price"] / max_price
-    y_test["price"] = y_test["price"] / max_price
-
-    # modelling
-    cvnn_regressor = CNNPriceRegressor(image_input_shape=(128, 128, 3))
-    run_id = cvnn_regressor.train(
-        x_train, y_train["price"], x_val, y_val["price"], epochs=200, batch_size=8
-    )
-
-    print(f"Model trained and logged with run ID: {run_id}")
-    model = mlflow.pyfunc.load_model(model_uri=f"runs:/{run_id}/model")
-    predictions = model.predict(x_test)
-
-    eval_data = pd.DataFrame(y_test)
-    eval_data["predictions"] = predictions
-
-    with mlflow.start_run(run_id=run_id) as run:
-        mlflow.evaluate(
-            model_type="regressor",
-            data=eval_data,
-            targets="price",
-            predictions="predictions",
-            evaluator_config={"metric_prefix": f"single_model_{image_label}_"},
+    for image_label in image_labels:
+        print("Training model for image label:", image_label)
+        # Load the dataset
+        x_train, y_train, x_val, y_val, x_test, y_test = (
+            dataset.get_train_test_val_data(
+                dataset_type="single_image", image_label=image_label
+            )
         )
+
+        max_price = y_train["price"].max()
+        y_train["price"] = y_train["price"] / max_price
+        y_val["price"] = y_val["price"] / max_price
+        y_test["price"] = y_test["price"] / max_price
+
+        # modelling
+        cvnn_regressor = CNNPriceRegressor(image_input_shape=(128, 128, 3))
+        run_id = cvnn_regressor.train(
+            x_train,
+            y_train["price"],
+            x_val,
+            y_val["price"],
+            epochs=200,
+            batch_size=8,
+            registered_model_name=f"single_image_{image_label}_model",
+        )
+
+        print(f"Model trained and logged with run ID: {run_id}")
+        model = mlflow.pyfunc.load_model(model_uri=f"runs:/{run_id}/model")
+        predictions = model.predict(x_test)
+
+        eval_data = pd.DataFrame(y_test)
+        eval_data["predictions"] = predictions
+
+        with mlflow.start_run(run_id=run_id) as run:
+            mlflow.evaluate(
+                model_type="regressor",
+                data=eval_data,
+                targets="price",
+                predictions="predictions",
+                evaluator_config={"metric_prefix": f"single_model_{image_label}_"},
+            )
 
 
 def train():
@@ -184,17 +196,3 @@ def train_multi_image():
     print(f"MSE: {mse}")
     print(f"RMSE: {rmse}")
     print(f"MAE: {mae}")
-
-
-# def train():
-#     pass
-# dataset = HPDataset()
-
-# image_dataset = dataset.get_image_dataset(image_label="image_name")
-# train_single_image_model(image_dataset) # 4 models one for each image
-
-# multi_image_dataset = dataset.get_multi_image_dataset()
-# train_multi_image_model(multi_image_dataset)
-
-# combined_dataset = dataset.get_combined_dataset()
-# train_combined_feature_model(combined_dataset)
