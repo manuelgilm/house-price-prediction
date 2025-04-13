@@ -17,7 +17,7 @@ class CNNPriceRegressor(CustomModel):
         x_val,
         y_val,
         epochs: int = 10,
-        batch_size: int = 32,
+        batch_size: int = 8,
         log_history: bool = True,
     ):
         """
@@ -34,7 +34,7 @@ class CNNPriceRegressor(CustomModel):
         model = self.build_model()
         optimizer = keras.optimizers.Adamax(learning_rate=0.001, decay=1e-3 / 200)
 
-        model.compile(optimizer=optimizer, loss="mse")
+        model.compile(optimizer=optimizer, loss="mean_absolute_percentage_error")
         callbacks = [mlflow.keras.MlflowCallback()] if log_history else None
 
         model_signature = get_model_signature(

@@ -22,6 +22,7 @@ def train():
         indexes, test_size=0.2, val_size=0.1
     )
 
+
     df_train = get_dataset(train_indexes, df)
     df_val = get_dataset(val_indexes, df)
     df_test = get_dataset(test_indexes, df)
@@ -31,8 +32,16 @@ def train():
     test_data = df_test.map(lambda x: read_image(x) if type(x) is str else x)
 
     x_train, y_train = get_model_data(train_data)
+
+    max_price = y_train.max()
+    # rescaling the price to be between 0 and 1
+    y_train = y_train / max_price
     x_val, y_val = get_model_data(val_data)
+    # rescaling the price to be between 0 and 1
+    y_val = y_val / max_price
     x_test, y_test = get_model_data(test_data)
+    # rescaling the price to be between 0 and 1
+    y_test = y_test / max_price
     x_train_ = {}
     x_train_["image_input"] = x_train["bedroom_image_input"]
 
@@ -50,10 +59,26 @@ def train():
     print(y_val.shape)
     cvnn_regressor = CNNPriceRegressor(image_input_shape=(128, 128, 3))
     run_id = cvnn_regressor.train(
-        x_train_, y_train, x_val_, y_val, epochs=10, batch_size=32
+        x_train_, y_train, x_val_, y_val, epochs=200, batch_size=8
     )
 
     print(f"Model trained and logged with run ID: {run_id}")
     model = mlflow.pyfunc.load_model(model_uri=f"runs:/{run_id}/model")
     predictions = model.predict(x_test_)
-    print(predictions)
+    
+    # measure regression performance
+    from sklearn.metrics import r2_score
+    from sklearn.metrics import mean_squared_error
+    from sklearn.metrics import mean_absolute_error
+    
+    r2 = r2_score(y_test, predictions)
+    mse = mean_squared_error(y_test, predictions)
+    rmse = np.sqrt(mse)
+
+    mae = mean_absolute_error(y_test, predictions)
+    print(f"R2: {r2}")
+    print(f"MSE: {mse}")
+    print(f"RMSE: {rmse}")
+    print(f"MAE: {mae}")
+
+

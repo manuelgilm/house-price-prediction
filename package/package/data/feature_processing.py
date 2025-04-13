@@ -126,7 +126,7 @@ def get_model_data(df: pd.DataFrame) -> tuple:
     :return: Tuple containing the image data, textual data, and target values.
     """
     textual_data = df.get(["n_bedrooms", "n_bathrooms", "area"])
-    target = df.get(["price"]) / max(df["price"])
+    target = df.get(["price"])
     input_names_map = {
         "bedroom_image_input": "bedroom",
         "bathroom_image_input": "bathroom",
