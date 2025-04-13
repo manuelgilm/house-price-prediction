@@ -41,8 +41,8 @@ def test():
 
         max_price = y_train["price"].max()
         y_train["price"] = y_train["price"] / max_price
-        y_val["price"] = y_val["price"] / max_price
-        y_test["price"] = y_test["price"] / max_price
+        y_val["price"] = y_val["price"]
+        y_test["price"] = y_test["price"]
 
         # modelling
         cvnn_regressor = CNNPriceRegressor(image_input_shape=(128, 128, 3))
@@ -64,7 +64,7 @@ def test():
         predictions = model.predict(x_test)
 
         eval_data = pd.DataFrame(y_test)
-        eval_data["predictions"] = predictions
+        eval_data["predictions"] = max_price * predictions
 
         with mlflow.start_run(run_id=run_id) as run:
             mlflow.evaluate(
