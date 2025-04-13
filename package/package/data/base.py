@@ -46,7 +46,7 @@ class CustomDataset:
         self,
         path: Optional[str] = "package/data/processed/indexes.pkl",
         regenerate: Optional[bool] = False,
-    ) -> None:
+    ) -> dict:
         """
         Save the indexes to a file.
         This method should be overridden by subclasses to save specific indexes.
@@ -69,13 +69,26 @@ class CustomDataset:
         with open(path, "wb") as f:
             pickle.dump(indexes, f)
 
+        return indexes
+
     def load_indexes(
         self, path: Optional[str] = "package/data/processed/indexes.pkl"
     ) -> dict:
         """
         Load the indexes from a file.
         This method should be overridden by subclasses to load specific indexes.
+
+        :path: Path to the file containing the indexes.
+        :return: Dictionary containing the train, validation, and test indexes.
         """
+
+        root = get_root_project_path()
+        path = root / path
+        if not path.exists():
+            raise FileNotFoundError(
+                f"File not found at {path}. Please generate indexes first."
+            )
+        # Load the indexes from the file
         with open(path, "rb") as f:
             indexes = pickle.load(f)
         return indexes
