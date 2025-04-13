@@ -100,10 +100,10 @@ class CNNPriceRegressor(CustomModel):
         input_name = f"{prefix}_image_input" if prefix else "image_input"
 
         x_im_i = keras.Input(shape=self.image_input_shape, name=input_name)
+        x_im = keras.layers.Rescaling(1.0 / 255, input_shape=self.image_input_shape)(
+            x_im_i
+        )
         for n, f in enumerate([16, 32, 64]):
-            if n == 0:
-                x_im = x_im_i
-
             x_im = keras.layers.Conv2D(f, (3, 3), activation="relu")(x_im)
             x_im = keras.layers.MaxPool2D((2, 2))(x_im)
             x_im = keras.layers.BatchNormalization()(x_im)
