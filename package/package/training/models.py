@@ -52,9 +52,7 @@ class CNNPriceRegressor(CustomModel):
                 callbacks=callbacks,
             )
 
-            mlflow.keras.log_model(
-                model, artifact_path="model", signature=model_signature
-            )
+        self.log_keras_model(model = model, artifact_path="model", run_id=run.info.run_id)
 
         return run.info.run_id
 

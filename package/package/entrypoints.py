@@ -43,13 +43,13 @@ def train():
     # rescaling the price to be between 0 and 1
     y_test = y_test / max_price
     x_train_ = {}
-    x_train_["image_input"] = x_train["bedroom_image_input"]
+    x_train_["image_input"] = x_train["kitchen_image_input"]
 
     x_val_ = {}
-    x_val_["image_input"] = x_val["bedroom_image_input"]
+    x_val_["image_input"] = x_val["kitchen_image_input"]
 
     x_test_ = {}
-    x_test_["image_input"] = x_test["bedroom_image_input"]
+    x_test_["image_input"] = x_test["kitchen_image_input"]
 
     print(x_val_.keys())
     print(x_train_.keys())
