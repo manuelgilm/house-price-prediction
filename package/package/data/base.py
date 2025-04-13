@@ -12,7 +12,7 @@ class CustomDataset:
         pass
 
     def load_feature_indexes(
-        self, path: Optional[str] = "data/feature_metadata.csv"
+        self, path: Optional[str] = "data/processed/feature_metadata.csv"
     ) -> np.ndarray:
         """
         Load the feature indexes from the given path.
