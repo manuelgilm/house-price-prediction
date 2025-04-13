@@ -21,14 +21,21 @@ import pandas as pd
 
 def test():
     dataset = HousePriceDataset()
-    image_labels = ["kitchen", "bathroom", "frontal", "bedroom"]
+    image_labels = [
+        ("kitchen", "single_image"),
+        ("bathroom", "single_image"),
+        ("frontal", "single_image"),
+        ("bedroom", "single_image"),
+        (None, "multi_image"),
+    ]
 
-    for image_label in image_labels:
+    for image_label, dataset_type in image_labels:
         print("Training model for image label:", image_label)
+        print("Dataset type:", dataset_type)
         # Load the dataset
         x_train, y_train, x_val, y_val, x_test, y_test = (
             dataset.get_train_test_val_data(
-                dataset_type="single_image", image_label=image_label
+                dataset_type=dataset_type, image_label=image_label
             )
         )
 
@@ -39,6 +46,9 @@ def test():
 
         # modelling
         cvnn_regressor = CNNPriceRegressor(image_input_shape=(128, 128, 3))
+        registered_model_name = (
+            f"single_image_{image_label}_model" if image_label else "multi_image_model"
+        )
         run_id = cvnn_regressor.train(
             x_train,
             y_train["price"],
@@ -46,7 +56,7 @@ def test():
             y_val["price"],
             epochs=200,
             batch_size=8,
-            registered_model_name=f"single_image_{image_label}_model",
+            registered_model_name=registered_model_name,
         )
 
         print(f"Model trained and logged with run ID: {run_id}")

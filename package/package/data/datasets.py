@@ -6,6 +6,7 @@ from typing import Optional
 from typing import List
 from package.utils.file_system import read_csv_as_dataframe
 from package.utils.image import read_image
+from package.utils.image import stack_images
 import pandas as pd
 import numpy as np
 
@@ -56,10 +57,10 @@ class HousePriceDataset(CustomDataset):
         :param dataset_type: The type of dataset to consider for the dataset.["single_image","multi_image", "combined"]
         :return: A tuple containing the dataset and labels.
         """
+        model_output_label = kwargs.get("model_output_label", "price")
+        image_label = kwargs.get("image_label", "kitchen")
+        model_input_label = kwargs.get("model_input_label", "image_input")
         if dataset_type == "single_image":
-            image_label = kwargs.get("image_label", "kitchen")
-            model_input_label = kwargs.get("model_input_label", "image_input")
-            model_output_label = kwargs.get("model_output_label", "price")
 
             x_train, y_train = self.get_image_dataset(
                 image_label=image_label,
@@ -81,9 +82,21 @@ class HousePriceDataset(CustomDataset):
             )
 
         elif dataset_type == "multi_image":
-            x_train, y_train = self.get_multi_image_dataset()
-            x_val, y_val = self.get_multi_image_dataset()
-            x_test, y_test = self.get_multi_image_dataset()
+            x_train, y_train = self.get_multi_image_dataset(
+                mode="train",
+                model_input_label=model_input_label,
+                model_output_label="price",
+            )
+            x_val, y_val = self.get_multi_image_dataset(
+                mode="val",
+                model_input_label=model_input_label,
+                model_output_label="price",
+            )
+            x_test, y_test = self.get_multi_image_dataset(
+                mode="test",
+                model_input_label=model_input_label,
+                model_output_label="price",
+            )
         elif dataset_type == "combined":
             x_train, y_train = self.get_combined_dataset()
             x_val, y_val = self.get_combined_dataset()
@@ -108,8 +121,35 @@ class HousePriceDataset(CustomDataset):
         df = pd.merge(df, df_index, on="id_")
         return df
 
-    def get_multi_image_dataset(self) -> Tuple[Dict[str, Any], Dict[str, Any]]:
-        pass
+    def get_multi_image_dataset(
+        self,
+        mode: Optional[str] = "train",
+        model_input_label: Optional[str] = None,
+        model_output_label: Optional[str] = None,
+    ) -> Tuple[Dict[str, Any], Dict[str, Any]]:
+        """
+        Get the multi-image dataset for the specified mode.
+
+        The dataset is a dictionary containing the images (arrays) and labels.
+        The images are numpy arrays of shape (n_samples, height, width, channels).
+
+        :param mode: The mode to consider for the dataset.["train", "val", "test"]
+        :param model_input_label: The label for the input images.
+        :param model_output_label: The label for the output prices.
+        :return: A tuple containing the dataset and labels.
+        """
+        df = self._get_feature_dataframe(mode=mode)
+        df = df[["id_", "kitchen", "bathroom", "bedroom", "frontal", "price"]]
+        df = df.map(
+            lambda x: read_image(x, image_size=(256, 256)) if type(x) is str else x
+        )
+        # stack all images into a single image
+        df["multi_image"] = df[["kitchen", "bathroom", "bedroom", "frontal"]].apply(
+            lambda x: stack_images(x), axis=1
+        )
+        x = {model_input_label: np.array([image for image in df.get("multi_image")])}
+        y = {model_output_label: np.array([price for price in df.get("price")])}
+        return x, y
 
     def get_combined_dataset(self) -> Tuple[Dict[str, Any], Dict[str, Any]]:
         pass
