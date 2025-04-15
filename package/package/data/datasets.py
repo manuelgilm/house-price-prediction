@@ -98,9 +98,24 @@ class HousePriceDataset(CustomDataset):
                 model_output_label="price",
             )
         elif dataset_type == "combined":
-            x_train, y_train = self.get_combined_dataset()
-            x_val, y_val = self.get_combined_dataset()
-            x_test, y_test = self.get_combined_dataset()
+            x_train, y_train = self.get_combined_dataset(
+                model_image_input_label=model_input_label,
+                model_numerical_input_label="numerical_input",
+                model_output_label="price",
+                mode="train",
+            )
+            x_val, y_val = self.get_combined_dataset(
+                model_image_input_label=model_input_label,
+                model_numerical_input_label="numerical_input",
+                model_output_label="price",
+                mode="val",
+            )
+            x_test, y_test = self.get_combined_dataset(
+                model_image_input_label=model_input_label,
+                model_numerical_input_label="numerical_input",
+                model_output_label="price",
+                mode="test",
+            )
         else:
             raise ValueError("Invalid dataset type.")
 
@@ -151,8 +166,39 @@ class HousePriceDataset(CustomDataset):
         y = {model_output_label: np.array([price for price in df.get("price")])}
         return x, y
 
-    def get_combined_dataset(self) -> Tuple[Dict[str, Any], Dict[str, Any]]:
-        pass
+    def get_combined_dataset(
+        self,
+        model_image_input_label: str,
+        model_numerical_input_label: str,
+        model_output_label: str,
+        mode: str,
+    ) -> Tuple[Dict[str, Any], Dict[str, Any]]:
+
+        df = self._get_feature_dataframe(mode=mode)
+        df = df.map(
+            lambda x: read_image(x, image_size=(256, 256)) if type(x) is str else x
+        )
+
+        # stack all images into a single image
+        df["multi_image"] = df[["kitchen", "bathroom", "bedroom", "frontal"]].apply(
+            lambda x: stack_images(x), axis=1
+        )
+        x = {
+            model_image_input_label: np.array(
+                [image for image in df.get("multi_image")]
+            ),
+            model_numerical_input_label: np.array(
+                [
+                    [n_bathrooms, n_bedrooms, area]
+                    for n_bathrooms, n_bedrooms, area in zip(
+                        df["n_bathrooms"], df["n_bedrooms"], df["area"]
+                    )
+                ]
+            ).astype(np.float32),
+        }
+        y = {model_output_label: np.array([price for price in df.get("price")])}
+
+        return x, y
 
 
 class HouseImageDataset(CustomDataset):

@@ -35,9 +35,12 @@ def get_model_signature(
             type=np.dtype(np.float32),
             name="numerical_input",
         )
-        input_specification = image_input_spec + [numerical_input_spec]
 
-    input_specification = image_input_spec
+    input_specification = (
+        image_input_spec + [numerical_input_spec]
+        if numerical_input_shape
+        else image_input_spec
+    )
 
     input_schema = Schema(inputs=input_specification)
     output_specification = TensorSpec(

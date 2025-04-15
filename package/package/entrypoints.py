@@ -27,6 +27,7 @@ def test():
         ("frontal", "single_image"),
         ("bedroom", "single_image"),
         (None, "multi_image"),
+        (None, "combined"),
     ]
 
     for image_label, dataset_type in image_labels:
@@ -41,14 +42,20 @@ def test():
 
         max_price = y_train["price"].max()
         y_train["price"] = y_train["price"] / max_price
-        y_val["price"] = y_val["price"]
-        y_test["price"] = y_test["price"]
 
-        # modelling
-        cvnn_regressor = CNNPriceRegressor(image_input_shape=(128, 128, 3))
-        registered_model_name = (
-            f"single_image_{image_label}_model" if image_label else "multi_image_model"
-        )
+        if dataset_type == "combined":
+            registered_model_name = "combined_model"
+            cvnn_regressor = CNNPriceRegressor(
+                image_input_shape=(128, 128, 3), numerical_input_shape=(3,)
+            )
+        elif dataset_type == "single_image":
+            cvnn_regressor = CNNPriceRegressor(image_input_shape=(128, 128, 3))
+            registered_model_name = f"single_image_{image_label}_model"
+        else:
+            cvnn_regressor = CNNPriceRegressor(image_input_shape=(128, 128, 3))
+            registered_model_name = "multi_image_model"
+
+        print(x_train.keys())
         run_id = cvnn_regressor.train(
             x_train,
             y_train["price"],
@@ -57,10 +64,12 @@ def test():
             epochs=200,
             batch_size=8,
             registered_model_name=registered_model_name,
+            dataset_type=dataset_type,
         )
 
         print(f"Model trained and logged with run ID: {run_id}")
         model = mlflow.pyfunc.load_model(model_uri=f"runs:/{run_id}/model")
+        print(x_test.keys())
         predictions = model.predict(x_test)
 
         eval_data = pd.DataFrame(y_test)
@@ -72,7 +81,6 @@ def test():
                 data=eval_data,
                 targets="price",
                 predictions="predictions",
-                evaluator_config={"metric_prefix": f"single_model_{image_label}_"},
             )
 
 
