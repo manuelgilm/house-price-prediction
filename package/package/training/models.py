@@ -57,7 +57,8 @@ class CNNPriceRegressor(CustomModel):
             image_input_shape=self.image_input_shape,
             numerical_input_shape=self.numerical_shape,
         )
-
+        print("model signature")
+        print(model_signature)
         with mlflow.start_run() as run:
             model.fit(
                 x=x_train,

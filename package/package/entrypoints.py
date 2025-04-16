@@ -11,11 +11,6 @@ import mlflow
 import matplotlib.pyplot as plt
 from package.data.base import CustomDataset
 from package.data.datasets import HousePriceDataset
-
-# measure regression performance
-from sklearn.metrics import r2_score
-from sklearn.metrics import mean_squared_error
-from sklearn.metrics import mean_absolute_error
 import pandas as pd
 
 
@@ -42,6 +37,7 @@ def test():
 
         max_price = y_train["price"].max()
         y_train["price"] = y_train["price"] / max_price
+        y_val["price"] = y_val["price"] / max_price
 
         if dataset_type == "combined":
             registered_model_name = "combined_model"
