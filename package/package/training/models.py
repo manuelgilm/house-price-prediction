@@ -7,8 +7,21 @@ import mlflow
 
 class CNNPriceRegressor(CustomModel):
 
-    def __init__(self, image_input_shape):
+    def __init__(self, image_input_shape, numerical_input_shape=None) -> None:
         self.image_input_shape = image_input_shape
+        self.numerical_shape = numerical_input_shape
+
+    def get_model(self, dataset_type: str) -> keras.Model:
+        """
+        Get the model based on the dataset type.
+
+        :param dataset_type: Type of dataset. Default is None.
+        :return: A Keras model.
+        """
+        if dataset_type == "combined":
+            return self.build_combined_model()
+        else:
+            return self.build_model()
 
     def train(
         self,
@@ -20,6 +33,7 @@ class CNNPriceRegressor(CustomModel):
         batch_size: int = 8,
         log_history: bool = True,
         registered_model_name: Optional[str] = None,
+        dataset_type: Optional[str] = None,
     ):
         """
         Train the model using the provided training and validation data.
@@ -30,16 +44,18 @@ class CNNPriceRegressor(CustomModel):
         :param y_val: Validation labels.
         :param epochs: Number of epochs to train. Default is 10.
         :param batch_size: Batch size for training. Default is 32.
+        :param dataset_type: Type of dataset. Default is None.
         """
-
-        model = self.build_model()
+        model = self.get_model(dataset_type=dataset_type)
         optimizer = keras.optimizers.Adamax(learning_rate=0.001, decay=1e-3 / 200)
 
         model.compile(optimizer=optimizer, loss="mean_absolute_percentage_error")
         callbacks = [mlflow.keras.MlflowCallback()] if log_history else None
 
         model_signature = get_model_signature(
-            image_input_names=["image_input"], image_input_shape=self.image_input_shape
+            image_input_names=["image_input"],
+            image_input_shape=self.image_input_shape,
+            numerical_input_shape=self.numerical_shape,
         )
         print("model signature")
         print(model_signature)
@@ -115,7 +131,7 @@ class CNNPriceRegressor(CustomModel):
 
         return x_im_i, x_im
 
-    def build_model(self, output_dim: int = 4, prefix: Optional[str] = None):
+    def build_model(self, output_dim: Optional[int] = 4, prefix: Optional[str] = None):
         """
         Build the final model by processing images.
 
@@ -135,3 +151,39 @@ class CNNPriceRegressor(CustomModel):
         model = keras.Model(inputs=x_im_i, outputs=x)
 
         return model
+
+    def build_combined_model(
+        self, output_dim: Optional[int] = 4, prefix: Optional[str] = None
+    ):
+        """
+        Build the final model by processing images and numerical data.
+
+        :param output_dim: Shape of the output data for both the image processor and numerical processor. Default is 4.
+        :param prefix: Prefix for the input layer name. Default is None.
+        :return: A Keras model that processes images and numerical data.
+        """
+
+        x_im_i, x_im = self.get_image_processor(output_dim, prefix)
+        x_num_i, x_num = self.get_numerical_processor(output_dim=output_dim)
+        x = keras.layers.Concatenate()([x_im, x_num])
+
+        x = keras.layers.Dense(4, activation="relu")(x)
+        x = keras.layers.Dense(1, activation="linear")(x)
+
+        # creating the model
+        model = keras.Model(inputs=[x_im_i, x_num_i], outputs=x)
+        return model
+
+    def get_numerical_processor(self, output_dim: int = 4):
+        """
+        Create a Keras model for processing numerical data.
+
+        :param ouput_shape: Shape of the output data. Default is 4.
+        :return: A Keras model for processing numerical data.
+        """
+        # Numerical and categorical input layer
+        x_num_i = keras.Input(shape=self.numerical_shape, name="numerical_input")
+        x_num = keras.layers.Dense(16, activation="relu")(x_num_i)
+        x_num = keras.layers.Dense(output_dim, activation="relu")(x_num)
+
+        return x_num_i, x_num
