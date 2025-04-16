@@ -22,11 +22,11 @@ import pandas as pd
 def test():
     dataset = HousePriceDataset()
     image_labels = [
-        ("kitchen", "single_image"),
-        ("bathroom", "single_image"),
-        ("frontal", "single_image"),
-        ("bedroom", "single_image"),
-        (None, "multi_image"),
+        # ("kitchen", "single_image"),
+        # ("bathroom", "single_image"),
+        # ("frontal", "single_image"),
+        # ("bedroom", "single_image"),
+        # (None, "multi_image"),
         (None, "combined"),
     ]
 

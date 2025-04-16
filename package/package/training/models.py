@@ -11,6 +11,18 @@ class CNNPriceRegressor(CustomModel):
         self.image_input_shape = image_input_shape
         self.numerical_shape = numerical_input_shape
 
+    def get_model(self, dataset_type: str) -> keras.Model:
+        """
+        Get the model based on the dataset type.
+
+        :param dataset_type: Type of dataset. Default is None.
+        :return: A Keras model.
+        """
+        if dataset_type == "combined":
+            return self.build_combined_model()
+        else:
+            return self.build_model()
+
     def train(
         self,
         x_train,
@@ -34,10 +46,7 @@ class CNNPriceRegressor(CustomModel):
         :param batch_size: Batch size for training. Default is 32.
         :param dataset_type: Type of dataset. Default is None.
         """
-        if dataset_type == "combined":
-            model = self.build_combined_model()
-        else:
-            model = self.build_model()
+        model = self.get_model(dataset_type=dataset_type)
         optimizer = keras.optimizers.Adamax(learning_rate=0.001, decay=1e-3 / 200)
 
         model.compile(optimizer=optimizer, loss="mean_absolute_percentage_error")
@@ -48,8 +57,7 @@ class CNNPriceRegressor(CustomModel):
             image_input_shape=self.image_input_shape,
             numerical_input_shape=self.numerical_shape,
         )
-        print("model signature")
-        print(model_signature)
+
         with mlflow.start_run() as run:
             model.fit(
                 x=x_train,
@@ -155,7 +163,7 @@ class CNNPriceRegressor(CustomModel):
         """
 
         x_im_i, x_im = self.get_image_processor(output_dim, prefix)
-        x_num_i, x_num = self.get_numerical_processor()
+        x_num_i, x_num = self.get_numerical_processor(output_dim=output_dim)
         x = keras.layers.Concatenate()([x_im, x_num])
 
         x = keras.layers.Dense(4, activation="relu")(x)
@@ -165,7 +173,7 @@ class CNNPriceRegressor(CustomModel):
         model = keras.Model(inputs=[x_im_i, x_num_i], outputs=x)
         return model
 
-    def get_numerical_processor(self, ouput_shape: int = 4):
+    def get_numerical_processor(self, output_dim: int = 4):
         """
         Create a Keras model for processing numerical data.
 
@@ -175,6 +183,6 @@ class CNNPriceRegressor(CustomModel):
         # Numerical and categorical input layer
         x_num_i = keras.Input(shape=self.numerical_shape, name="numerical_input")
         x_num = keras.layers.Dense(16, activation="relu")(x_num_i)
-        x_num = keras.layers.Dense(ouput_shape, activation="relu")(x_num)
+        x_num = keras.layers.Dense(output_dim, activation="relu")(x_num)
 
         return x_num_i, x_num

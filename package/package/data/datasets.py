@@ -9,6 +9,7 @@ from package.utils.image import read_image
 from package.utils.image import stack_images
 import pandas as pd
 import numpy as np
+from sklearn.preprocessing import StandardScaler
 
 
 class HousePriceDataset(CustomDataset):
@@ -20,6 +21,7 @@ class HousePriceDataset(CustomDataset):
 
         :param regenerate_index: A boolean flag to indicate whether to regenerate the indexes of the dataset.
         """
+        self.scaler = None  # only used for combined dataset
         try:
             self.indexes = self.load_indexes()
         except FileNotFoundError:
@@ -198,7 +200,28 @@ class HousePriceDataset(CustomDataset):
         }
         y = {model_output_label: np.array([price for price in df.get("price")])}
 
+        # scale the numerical input data
+        if mode == "train":
+            self.scaler = StandardScaler()
+            x[model_numerical_input_label] = self.scaler.fit_transform(
+                x[model_numerical_input_label]
+            )
+        else:
+            x[model_numerical_input_label] = self.scaler.transform(
+                x[model_numerical_input_label]
+            )
+
         return x, y
+
+    def get_scaler(self) -> StandardScaler:
+        """
+        Returns the scaler used for the numerical input data.
+
+        :return: A StandardScaler object.
+        """
+        if self.scaler is None:
+            raise ValueError("Scaler has not been fitted yet.")
+        return self.scaler
 
 
 class HouseImageDataset(CustomDataset):
