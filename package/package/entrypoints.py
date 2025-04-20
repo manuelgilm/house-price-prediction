@@ -34,7 +34,12 @@ def test():
                 dataset_type=dataset_type, image_label=image_label
             )
         )
-
+        # print(x_train.keys())
+        # print(x_train["image_input"].shape)
+        # print(x_train["numerical_input"].shape)
+        # plt.imshow(x_train["image_input"][0])
+        # plt.show()
+        # print(x_train["numerical_input"][0])
         max_price = y_train["price"].max()
         y_train["price"] = y_train["price"] / max_price
         y_val["price"] = y_val["price"] / max_price
@@ -42,7 +47,7 @@ def test():
         if dataset_type == "combined":
             registered_model_name = "combined_model"
             cvnn_regressor = CNNPriceRegressor(
-                image_input_shape=(128, 128, 3), numerical_input_shape=(3,)
+                image_input_shape=(256, 256, 3), numerical_input_shape=(3,)
             )
         elif dataset_type == "single_image":
             cvnn_regressor = CNNPriceRegressor(image_input_shape=(128, 128, 3))
